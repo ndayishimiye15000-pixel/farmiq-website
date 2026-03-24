@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FarmIQ – Smart Pig Farm Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green: #2D7A4F;
+    --green-light: #4AAD72;
+    --green-pale: #E8F5EE;
+    --amber: #F5A623;
+    --amber-light: #FDE8BC;
+    --earth: #7C5C3E;
+    --cream: #FAFAF5;
+    --dark: #1A2E1F;
+    --mid: #4A5C50;
+    --border: #D4E8DC;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 5%;
+    background: rgba(250,250,245,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    animation: slideDown .6s ease forwards;
+  }
+
+  @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .logo {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800; font-size: 1.5rem;
+    color: var(--green);
+    display: flex; align-items: center; gap: .4rem;
+  }
+  .logo span { color: var(--amber); }
+
+  nav ul { list-style: none; display: flex; gap: 2rem; }
+  nav ul a { text-decoration: none; color: var(--mid); font-size: .9rem; font-weight: 500; transition: color .2s; }
+  nav ul a:hover { color: var(--green); }
+
+  .nav-cta {
+    background: var(--green); color: var(--white);
+    padding: .55rem 1.3rem; border-radius: 50px;
+    font-weight: 600; font-size: .9rem; text-decoration: none;
+    transition: background .2s, transform .15s;
+  }
+  .nav-cta:hover { background: var(--green-light); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; gap: 3rem;
+    padding: 8rem 5% 5rem;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 80% 50%, rgba(74,173,114,.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 10% 80%, rgba(245,166,35,.1) 0%, transparent 60%);
+  }
+
+  .hero-dots {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: radial-gradient(circle, rgba(45,122,79,.15) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .hero-content { position: relative; z-index: 1; }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--amber-light); color: var(--earth);
+    padding: .35rem .85rem; border-radius: 50px;
+    font-size: .8rem; font-weight: 600; letter-spacing: .03em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp .7s .2s both;
+  }
+
+  .hero-badge::before { content: '🐷'; font-size: 1rem; }
+
+  h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(2.2rem, 4vw, 3.4rem);
+    font-weight: 800; line-height: 1.12;
+    color: var(--dark);
+    margin-bottom: 1.2rem;
+    animation: fadeUp .7s .35s both;
+  }
+
+  h1 em { font-style: normal; color: var(--green); }
+
+  .hero-sub {
+    font-size: 1.1rem; color: var(--mid); line-height: 1.7;
+    max-width: 480px; margin-bottom: 2rem;
+    animation: fadeUp .7s .5s both;
+  }
+
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; animation: fadeUp .7s .65s both; }
+
+  .btn-primary {
+    background: var(--green); color: #fff;
+    padding: .85rem 2rem; border-radius: 50px;
+    font-weight: 700; font-size: 1rem; text-decoration: none;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 20px rgba(45,122,79,.3);
+  }
+  .btn-primary:hover { background: var(--green-light); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(45,122,79,.35); }
+
+  .btn-ghost {
+    border: 2px solid var(--border); color: var(--dark);
+    padding: .85rem 2rem; border-radius: 50px;
+    font-weight: 600; font-size: 1rem; text-decoration: none;
+    transition: border-color .2s, color .2s;
+  }
+  .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+
+  .hero-stats {
+    display: flex; gap: 2rem; margin-top: 2.5rem;
+    animation: fadeUp .7s .8s both;
+  }
+
+  .stat { }
+  .stat-num { font-family: 'Sora', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--green); }
+  .stat-label { font-size: .8rem; color: var(--mid); }
+
+  .hero-visual {
+    position: relative; z-index: 1;
+    animation: fadeUp .8s .4s both;
+  }
+
+  .hero-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 20px 60px rgba(26,46,31,.1), 0 2px 8px rgba(26,46,31,.06);
+    border: 1px solid var(--border);
+  }
+
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .card-header h3 { font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--dark); }
+  .card-badge { background: var(--green-pale); color: var(--green); font-size: .75rem; font-weight: 600; padding: .25rem .6rem; border-radius: 20px; }
+
+  .pig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-bottom: 1.5rem; }
+  .pig-item {
+    background: var(--green-pale); border-radius: 14px; padding: .75rem;
+    text-align: center; border: 1px solid var(--border);
+    transition: transform .2s;
+  }
+  .pig-item:hover { transform: scale(1.04); }
+  .pig-emoji { font-size: 1.5rem; }
+  .pig-name { font-size: .72rem; font-weight: 600; color: var(--dark); margin-top: .2rem; }
+  .pig-status { font-size: .65rem; color: var(--green); }
+
+  .metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .metric-box {
+    background: var(--cream); border-radius: 12px; padding: .85rem;
+    border: 1px solid var(--border);
+  }
+  .metric-label { font-size: .7rem; color: var(--mid); margin-bottom: .3rem; }
+  .metric-val { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--dark); }
+  .metric-sub { font-size: .65rem; color: var(--green); margin-top: .1rem; }
+
+  .float-tag {
+    position: absolute;
+    background: var(--white);
+    border-radius: 12px; padding: .5rem .9rem;
+    font-size: .75rem; font-weight: 600;
+    box-shadow: 0 4px 16px rgba(26,46,31,.12);
+    border: 1px solid var(--border);
+    animation: float 3s ease-in-out infinite;
+  }
+  .float-tag-1 { top: -1rem; right: -1.5rem; color: var(--green); }
+  .float-tag-2 { bottom: 1rem; left: -1.5rem; color: var(--amber); animation-delay: 1.5s; }
+
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+  /* ── SECTION BASE ── */
+  section { padding: 5.5rem 5%; }
+
+  .section-label {
+    display: inline-block;
+    font-size: .78rem; font-weight: 700; letter-spacing: .1em;
+    color: var(--green); text-transform: uppercase;
+    background: var(--green-pale); padding: .3rem .8rem; border-radius: 20px;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    font-weight: 800; line-height: 1.2;
+    color: var(--dark); margin-bottom: .8rem;
+  }
+
+  .section-sub {
+    font-size: 1rem; color: var(--mid); line-height: 1.7;
+    max-width: 520px;
+  }
+
+  .section-head { margin-bottom: 3rem; }
+  .section-head.center { text-align: center; }
+  .section-head.center .section-sub { margin: 0 auto; }
+
+  /* ── FEATURES ── */
+  #features { background: var(--white); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    background: var(--cream);
+    border-radius: 20px; padding: 1.75rem;
+    border: 1px solid var(--border);
+    transition: transform .25s, box-shadow .25s;
+    position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--green), var(--green-light));
+    opacity: 0; transition: opacity .25s;
+  }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(26,46,31,.1); }
+  .feature-card:hover::before { opacity: 1; }
+
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: var(--green-pale); display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-bottom: 1rem;
+  }
+
+  .feature-card h3 {
+    font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700;
+    color: var(--dark); margin-bottom: .5rem;
+  }
+  .feature-card p { font-size: .88rem; color: var(--mid); line-height: 1.6; }
+
+  /* ── HOW IT WORKS ── */
+  #how {
+    background: linear-gradient(135deg, var(--dark) 0%, #2a4a32 100%);
+    color: var(--white);
+    position: relative; overflow: hidden;
+  }
+
+  #how .section-label { background: rgba(255,255,255,.1); color: #9de0b5; }
+  #how .section-title { color: var(--white); }
+  #how .section-sub { color: rgba(255,255,255,.65); }
+
+  #how::before {
+    content: '';
+    position: absolute; top: -50%; right: -20%;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,173,114,.15) 0%, transparent 70%);
+  }
+
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; position: relative; }
+
+  .steps::before {
+    content: '';
+    position: absolute; top: 2rem; left: 10%; right: 10%; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(74,173,114,.4), transparent);
+  }
+
+  .step { text-align: center; position: relative; }
+
+  .step-num {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--amber); color: var(--dark);
+    font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.2rem;
+    box-shadow: 0 4px 20px rgba(245,166,35,.4);
+  }
+
+  .step h3 { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: .5rem; }
+  .step p { font-size: .85rem; color: rgba(255,255,255,.6); line-height: 1.65; }
+
+  /* ── GALLERY ── */
+  #gallery { background: var(--cream); }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 1rem;
+  }
+
+  .gallery-item {
+    border-radius: 18px; overflow: hidden;
+    background: var(--green-pale);
+    border: 1px solid var(--border);
+    aspect-ratio: 4/3;
+    position: relative;
+    transition: transform .25s, box-shadow .25s;
+    cursor: pointer;
+  }
+  .gallery-item:hover { transform: scale(1.02); box-shadow: 0 12px 32px rgba(26,46,31,.12); }
+  .gallery-item:first-child { grid-column: span 2; grid-row: span 1; aspect-ratio: 16/7; }
+
+  .gallery-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .4s ease;
+  }
+  .gallery-item:hover img { transform: scale(1.05); }
+
+  /* Shown when image is missing */
+  .gallery-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: .5rem;
+    font-size: 2.5rem; color: var(--green);
+  }
+
+  .gallery-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(26,46,31,.65) 0%, transparent 50%);
+    display: flex; align-items: flex-end; padding: 1rem;
+    opacity: 0; transition: opacity .3s;
+  }
+  .gallery-item:hover .gallery-overlay { opacity: 1; }
+
+  .gallery-label {
+    font-size: .82rem; font-weight: 600; color: #fff;
+    font-family: 'Sora', sans-serif;
+  }
+
+  /* Label shown below when no image */
+  .gallery-label-plain {
+    font-size: .8rem; font-weight: 600; color: var(--green);
+    font-family: 'Sora', sans-serif;
+  }
+
+  /* ── TESTIMONIALS ── */
+  #testimonials { background: var(--white); }
+
+  .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+
+  .testi-card {
+    background: var(--cream); border-radius: 20px; padding: 1.75rem;
+    border: 1px solid var(--border);
+    transition: transform .25s, box-shadow .25s;
+  }
+  .testi-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(26,46,31,.08); }
+
+  .testi-stars { color: var(--amber); font-size: 1rem; margin-bottom: 1rem; letter-spacing: .1em; }
+  .testi-text { font-size: .92rem; color: var(--mid); line-height: 1.7; margin-bottom: 1.2rem; font-style: italic; }
+
+  .testi-author { display: flex; align-items: center; gap: .75rem; }
+  .testi-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--green); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif; font-size: .9rem; font-weight: 700;
+  }
+  .testi-name { font-weight: 600; font-size: .88rem; color: var(--dark); }
+  .testi-role { font-size: .75rem; color: var(--mid); }
+
+  /* ── PRICING ── */
+  #pricing { background: var(--green-pale); }
+
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; align-items: start; }
+
+  .price-card {
+    background: var(--white); border-radius: 24px; padding: 2rem;
+    border: 2px solid var(--border);
+    transition: transform .25s, box-shadow .25s;
+  }
+  .price-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(26,46,31,.1); }
+
+  .price-card.popular {
+    border-color: var(--green);
+    position: relative;
+    transform: scale(1.03);
+  }
+  .popular-badge {
+    position: absolute; top: -1rem; left: 50%; transform: translateX(-50%);
+    background: var(--green); color: #fff;
+    font-size: .75rem; font-weight: 700; padding: .3rem .9rem; border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .plan-name { font-family: 'Sora', sans-serif; font-size: .85rem; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+  .plan-price { font-family: 'Sora', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--dark); margin-bottom: .3rem; }
+  .plan-price span { font-size: .9rem; font-weight: 400; color: var(--mid); }
+  .plan-desc { font-size: .85rem; color: var(--mid); margin-bottom: 1.5rem; }
+
+  .plan-features { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: .6rem; }
+  .plan-features li { font-size: .88rem; color: var(--mid); display: flex; align-items: center; gap: .5rem; }
+  .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  .btn-plan {
+    display: block; text-align: center; text-decoration: none;
+    padding: .8rem; border-radius: 50px;
+    font-weight: 700; font-size: .9rem; transition: all .2s;
+  }
+  .btn-plan-outline { border: 2px solid var(--green); color: var(--green); }
+  .btn-plan-outline:hover { background: var(--green); color: #fff; }
+  .btn-plan-filled { background: var(--green); color: #fff; box-shadow: 0 4px 16px rgba(45,122,79,.3); }
+  .btn-plan-filled:hover { background: var(--green-light); transform: translateY(-1px); }
+
+  /* ── CONTACT ── */
+  #contact { background: var(--white); }
+
+  .contact-wrapper {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
+  }
+
+  .contact-info h2 { font-family: 'Sora', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--dark); margin-bottom: 1rem; }
+  .contact-info p { color: var(--mid); line-height: 1.7; margin-bottom: 2rem; }
+
+  .contact-detail { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+  .contact-icon { width: 40px; height: 40px; border-radius: 12px; background: var(--green-pale); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+  .contact-text { font-size: .9rem; color: var(--mid); }
+  .contact-text strong { color: var(--dark); display: block; font-size: .85rem; }
+
+  .contact-form { background: var(--cream); border-radius: 24px; padding: 2rem; border: 1px solid var(--border); }
+  .contact-form h3 { font-family: 'Sora', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--dark); margin-bottom: 1.5rem; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { font-size: .82rem; font-weight: 600; color: var(--mid); margin-bottom: .4rem; display: block; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: .75rem 1rem;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: .9rem; color: var(--dark);
+    background: var(--white); outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(45,122,79,.1);
+  }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+
+  .submit-btn {
+    width: 100%; padding: .9rem; border: none; cursor: pointer;
+    background: var(--green); color: #fff;
+    border-radius: 50px; font-family: 'Sora', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 20px rgba(45,122,79,.3);
+  }
+  .submit-btn:hover { background: var(--green-light); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(45,122,79,.35); }
+
+  .success-msg {
+    display: none; text-align: center; padding: 1rem;
+    background: var(--green-pale); border-radius: 12px; color: var(--green);
+    font-weight: 600; margin-top: 1rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--dark); color: rgba(255,255,255,.6);
+    padding: 3rem 5%; text-align: center;
+  }
+  .footer-logo { font-family: 'Sora', sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: .5rem; }
+  .footer-logo span { color: var(--amber); }
+  footer p { font-size: .85rem; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    #hero { grid-template-columns: 1fr; padding-top: 6rem; }
+    .hero-visual { display: none; }
+    .contact-wrapper { grid-template-columns: 1fr; gap: 2rem; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; }
+    .gallery-item:first-child { grid-column: span 2; }
+    nav ul { display: none; }
+  }
+
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .hero-stats { flex-direction: column; gap: 1rem; }
+    .gallery-grid { grid-template-columns: 1fr; }
+    .gallery-item:first-child { grid-column: span 1; }
+    .steps::before { display: none; }
+    .price-card.popular { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">🐷 Farm<span>IQ</span></div>
+  <ul>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Get Started</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-dots"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Built for Rwanda's Pig Farmers</div>
+    <h1>Manage Your Farm<br/><em>Smarter, Faster,</em><br/>Better</h1>
+    <p class="hero-sub">FarmIQ is the all-in-one pig farm management platform — track health, breeding, finances, and workers all from your phone.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">Start Free Today</a>
+      <a href="#how" class="btn-ghost">See How It Works</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">500+</div>
+        <div class="stat-label">Pigs Tracked</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">50+</div>
+        <div class="stat-label">Farms in Rwanda</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">98%</div>
+        <div class="stat-label">Farmer Satisfaction</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card" style="position:relative;">
+      <div class="float-tag float-tag-1">🌿 Health: Excellent</div>
+      <div class="float-tag float-tag-2">💰 Revenue +24%</div>
+      <div class="card-header">
+        <h3>Farm Dashboard</h3>
+        <div class="card-badge">● Live</div>
+      </div>
+      <div class="pig-grid">
+        <div class="pig-item"><div class="pig-emoji">🐷</div><div class="pig-name">Amina</div><div class="pig-status">Healthy</div></div>
+        <div class="pig-item"><div class="pig-emoji">🐖</div><div class="pig-name">Bosco</div><div class="pig-status">Breeding</div></div>
+        <div class="pig-item"><div class="pig-emoji">🐷</div><div class="pig-name">Claudine</div><div class="pig-status">Healthy</div></div>
+        <div class="pig-item"><div class="pig-emoji">🐷</div><div class="pig-name">Dieudonne</div><div class="pig-status">Feeding</div></div>
+        <div class="pig-item"><div class="pig-emoji">🐖</div><div class="pig-name">Esperance</div><div class="pig-status">Pregnant</div></div>
+        <div class="pig-item"><div class="pig-emoji">🐷</div><div class="pig-name">Fidele</div><div class="pig-status">Healthy</div></div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-box">
+          <div class="metric-label">Monthly Revenue</div>
+          <div class="metric-val">450K</div>
+          <div class="metric-sub">RWF ↑ 12%</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Feed Cost</div>
+          <div class="metric-val">120K</div>
+          <div class="metric-sub">RWF this month</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-head reveal">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything Your Farm Needs</h2>
+    <p class="section-sub">From health records to financial reports, FarmIQ puts the full power of farm management in your hands.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">🐷</div>
+      <h3>Pig Health Tracking</h3>
+      <p>Log vaccinations, treatments, and health checks for every pig. Get alerts when follow-ups are due.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🍼</div>
+      <h3>Breeding & Reproduction</h3>
+      <p>Track breeding cycles, pregnancy stages, and farrowing records to maximize your herd growth.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">💰</div>
+      <h3>Financial Management</h3>
+      <p>Monitor income, expenses, and profitability in RWF. Generate reports for smarter decisions.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">👷</div>
+      <h3>Worker Management</h3>
+      <p>Assign tasks, track attendance, and manage your farm workers all in one place.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🤖</div>
+      <h3>AI Farm Advisor</h3>
+      <p>Get intelligent recommendations on feeding, health, and market timing powered by AI.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">📱</div>
+      <h3>Mobile First</h3>
+      <p>Designed for Android phones. Works offline and syncs automatically when you're back online.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-head center reveal">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title" style="color:#fff;">Up and Running in Minutes</h2>
+    <p class="section-sub" style="color:rgba(255,255,255,.6); margin:0 auto;">No technical knowledge needed. If you can use a phone, you can use FarmIQ.</p>
+  </div>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <h3>Sign Up Free</h3>
+      <p>Create your account in seconds. No credit card required to get started.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <h3>Add Your Pigs</h3>
+      <p>Register each pig with a name, breed, age, and photo. Takes less than a minute per animal.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <h3>Start Tracking</h3>
+      <p>Log health events, feedings, breeding cycles, and expenses as they happen.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">4</div>
+      <h3>Grow Your Farm</h3>
+      <p>Use insights and AI advice to make better decisions and boost your farm's profitability.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="section-head reveal">
+    <div class="section-label">Gallery</div>
+    <h2 class="section-title">See FarmIQ in Action</h2>
+    <p class="section-sub">A glimpse of what farm management looks like when it's done right.</p>
+  </div>
+  <div class="gallery-grid reveal">
+
+    <!-- Photo 1: Wide banner — replace farm1.jpg with your photo -->
+    <div class="gallery-item">
+      <img src="images/farm1.jpg" alt="Farm Overview"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+      <div class="gallery-placeholder" style="display:none;">
+        <span>📸</span>
+        <div class="gallery-label-plain">Upload: images/farm1.jpg</div>
+      </div>
+      <div class="gallery-overlay">
+        <div class="gallery-label">Farm Overview</div>
+      </div>
+    </div>
+
+    <!-- Photo 2 — replace pigs.jpg with your photo -->
+    <div class="gallery-item">
+      <img src="images/pigs.jpg" alt="Our Pigs"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+      <div class="gallery-placeholder" style="display:none;">
+        <span>🐷</span>
+        <div class="gallery-label-plain">Upload: images/pigs.jpg</div>
+      </div>
+      <div class="gallery-overlay">
+        <div class="gallery-label">Our Pigs</div>
+      </div>
+    </div>
+
+    <!-- Photo 3 — replace health.jpg with your photo -->
+    <div class="gallery-item">
+      <img src="images/health.jpg" alt="Health Check"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+      <div class="gallery-placeholder" style="display:none;">
+        <span>💉</span>
+        <div class="gallery-label-plain">Upload: images/health.jpg</div>
+      </div>
+      <div class="gallery-overlay">
+        <div class="gallery-label">Health Records</div>
+      </div>
+    </div>
+
+    <!-- Photo 4 — replace breeding.jpg with your photo -->
+    <div class="gallery-item">
+      <img src="images/breeding.jpg" alt="Breeding"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+      <div class="gallery-placeholder" style="display:none;">
+        <span>🍼</span>
+        <div class="gallery-label-plain">Upload: images/breeding.jpg</div>
+      </div>
+      <div class="gallery-overlay">
+        <div class="gallery-label">Breeding Tracker</div>
+      </div>
+    </div>
+
+    <!-- Photo 5 — replace finance.jpg with your photo -->
+    <div class="gallery-item">
+      <img src="images/finance.jpg" alt="Finance"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+      <div class="gallery-placeholder" style="display:none;">
+        <span>📈</span>
+        <div class="gallery-label-plain">Upload: images/finance.jpg</div>
+      </div>
+      <div class="gallery-overlay">
+        <div class="gallery-label">Financial Reports</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-head center reveal">
+    <div class="section-label">Testimonials</div>
+    <h2 class="section-title">Farmers Love FarmIQ</h2>
+    <p class="section-sub">Hear from pig farmers across Rwanda who transformed their operations.</p>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"Before FarmIQ I was writing everything in a notebook. Now I know exactly how each pig is doing and my income has gone up by 30% in six months."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">JM</div>
+        <div>
+          <div class="testi-name">Jean-Marie Nzabonimana</div>
+          <div class="testi-role">Pig Farmer, Musanze</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"The breeding tracker is incredible. I never miss a cycle and my sow productivity has improved so much. I recommend FarmIQ to every farmer I meet."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">AP</div>
+        <div>
+          <div class="testi-name">Aline Mukamana</div>
+          <div class="testi-role">Farm Owner, Kigali</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"The AI advisor told me the best time to sell my pigs. I made 45,000 RWF more than I expected that month. This app pays for itself."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">EP</div>
+        <div>
+          <div class="testi-name">Emile Habimana</div>
+          <div class="testi-role">Pig Farmer, Huye</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-head center reveal">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Simple, Honest Pricing</h2>
+    <p class="section-sub">Start free, upgrade when you're ready. All prices in RWF.</p>
+  </div>
+  <div class="pricing-grid reveal">
+    <div class="price-card">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">Free</div>
+      <div class="plan-desc">Perfect for small farms just getting started.</div>
+      <ul class="plan-features">
+        <li>Up to 10 pigs</li>
+        <li>Basic health tracking</li>
+        <li>Financial summary</li>
+        <li>Mobile app access</li>
+      </ul>
+      <a href="#contact" class="btn-plan btn-plan-outline">Get Started Free</a>
+    </div>
+    <div class="price-card popular">
+      <div class="popular-badge">Most Popular</div>
+      <div class="plan-name">Growth</div>
+      <div class="plan-price">15,000 <span>RWF/mo</span></div>
+      <div class="plan-desc">For growing farms that need full control.</div>
+      <ul class="plan-features">
+        <li>Unlimited pigs</li>
+        <li>Full health & breeding tracker</li>
+        <li>Worker management</li>
+        <li>Financial reports & charts</li>
+        <li>AI Farm Advisor</li>
+        <li>Cloud sync across devices</li>
+      </ul>
+      <a href="#contact" class="btn-plan btn-plan-filled">Start 14-Day Trial</a>
+    </div>
+    <div class="price-card">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">Custom</div>
+      <div class="plan-desc">For large operations and cooperatives.</div>
+      <ul class="plan-features">
+        <li>Everything in Growth</li>
+        <li>Multiple farm locations</li>
+        <li>Dedicated support</li>
+        <li>Custom integrations</li>
+        <li>Team training</li>
+      </ul>
+      <a href="#contact" class="btn-plan btn-plan-outline">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-wrapper">
+    <div class="contact-info reveal">
+      <div class="section-label">Contact Us</div>
+      <h2>Ready to Transform Your Farm?</h2>
+      <p>Sign up today or reach out with any questions. Our team is based in Rwanda and speaks Kinyarwanda, French, and English.</p>
+      <div class="contact-detail">
+        <div class="contact-icon">📧</div>
+        <div class="contact-text"><strong>Email</strong>hello@farmiq.rw</div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">📱</div>
+        <div class="contact-text"><strong>WhatsApp</strong>+250 700 000 000</div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">📍</div>
+        <div class="contact-text"><strong>Location</strong>Kigali, Rwanda</div>
+      </div>
+    </div>
+    <div class="contact-form reveal">
+      <h3>Get Started or Get in Touch</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" placeholder="Amina" id="fname"/>
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" placeholder="Uwimana" id="lname"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Phone / WhatsApp</label>
+        <input type="tel" placeholder="+250 7XX XXX XXX" id="phone"/>
+      </div>
+      <div class="form-group">
+        <label>Farm Location</label>
+        <input type="text" placeholder="e.g. Musanze, Huye, Kigali..." id="location"/>
+      </div>
+      <div class="form-group">
+        <label>I'm interested in</label>
+        <select id="plan">
+          <option>Starter (Free)</option>
+          <option>Growth Plan</option>
+          <option>Enterprise</option>
+          <option>Just have a question</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message (optional)</label>
+        <textarea placeholder="Tell us about your farm..." id="message"></textarea>
+      </div>
+      <button class="submit-btn" onclick="handleSubmit()">Send Message 🚀</button>
+      <div class="success-msg" id="successMsg">✅ Thank you! We'll be in touch within 24 hours.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🐷 Farm<span>IQ</span></div>
+  <p>© 2026 FarmIQ Rwanda · Smart Pig Farm Management</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => obs.observe(r));
+
+  // Form submit
+  function handleSubmit() {
+    const fname = document.getElementById('fname').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    if (!fname || !phone) {
+      alert('Please enter your name and phone number.');
+      return;
+    }
+    document.getElementById('successMsg').style.display = 'block';
+    document.querySelector('.submit-btn').disabled = true;
+    document.querySelector('.submit-btn').textContent = 'Sent!';
+    document.querySelector('.submit-btn').style.background = '#4AAD72';
+  }
+</script>
+</body>
+</html>
